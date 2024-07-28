@@ -1,0 +1,37 @@
+# Run the kafka producer
+python3 code/part1.py
+
+# Submit part2 script to spark
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,com.datastax.spark:spark-cassandra-connector_2.12:3.0.0 code/part2.py
+
+# enter kafka and destroy topic
+docker exec -it vagrant_kafka_1 bash
+kafka-topics --bootstrap-server localhost:29092 --topic spotify --delete
+
+# enter cassandra
+docker exec -it cassandra bash
+cqlsh
+
+# Create keyspace in Cassandra
+CREATE KEYSPACE spotify WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 1};
+
+# Create the table (define fields, partition and clustering key)
+create table spotify.records(
+    name text,
+    event_time timestamp,
+    song_name text, artists text,
+    duration_ms int,
+    album_name text,
+    album_release_date date,
+    danceability float,
+    energy float,
+    key text,
+    loudness float,
+    mode text,
+    speechiness float,
+    acousticness float,
+    instrumentalness float,
+    liveness float,
+    valence float,
+    tempo float,
+    primary key ((name), event_time));
